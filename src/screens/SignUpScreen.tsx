@@ -1,17 +1,10 @@
 import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import logo from '../assets/images/logo.png'
-import React, { use } from 'react'
+import React, { use, useContext } from 'react'
 import { Formik, FormikHelpers } from 'formik'
 import { useNavigation } from '@react-navigation/native'
 import * as yup from 'yup';
-import { addUser } from '../db/users'
-import { connectToDatabase } from '../db/db'
-
-interface SignUpFormValues {
-    name: string;
-    email: string;
-    password: string;
-}
+import { useAuthActions } from '../hooks/useAuthActions'
 
 const signUpValidationSchema = yup.object().shape({
     name: yup
@@ -28,21 +21,10 @@ const signUpValidationSchema = yup.object().shape({
         .required('Password is required'),
 });
 
-const handleSignUp = async (values: SignUpFormValues, { resetForm }: FormikHelpers<SignUpFormValues>) => {
-    console.log('Sign Up Values:', values);
-    try {
-        const db = await connectToDatabase();
-        let result = await addUser(db, values);
-        console.log('User added successfully:', result);
-        resetForm();
-        // Navigation Vala Kaam
-    } catch (error) {
-        console.error('Error adding user:', error);
-    }
-}
-
 const SignUpScreen = () => {
     const navigation = useNavigation();
+    const { handleSignUp } = useAuthActions();
+
     return (
         <View style={styles.container}>
             <Image source={logo} style={styles.logo} />

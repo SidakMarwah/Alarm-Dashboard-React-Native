@@ -1,11 +1,16 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import AppNavigator from './src/navigation/AppNavigator';
 import AuthNavigator from './src/navigation/AuthNavigator';
 import { connectToDatabase, createTables } from './src/db/db';
+import { AuthProvider, AuthContext } from './src/contexts/AuthContext';
+
+const RootNavigator = () => {
+  const { isAuthenticated } = useContext(AuthContext);
+  return isAuthenticated ? <AppNavigator /> : <AuthNavigator />;
+}
 
 export default function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false); // Replace with real auth logic
 
   const loadData = useCallback(async () => {
     try {
@@ -21,8 +26,10 @@ export default function App() {
   }, [loadData])
 
   return (
-    <NavigationContainer>
-      {isAuthenticated ? <AppNavigator /> : <AuthNavigator />}
-    </NavigationContainer>
+    <AuthProvider>
+      <NavigationContainer>
+        <RootNavigator />
+      </NavigationContainer>
+    </AuthProvider>
   );
 }

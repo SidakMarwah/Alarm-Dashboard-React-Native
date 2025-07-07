@@ -1,16 +1,10 @@
 import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import logo from '../assets/images/logo.png'
-import React, { use } from 'react'
+import React, { use, useContext } from 'react'
 import { Formik, FormikHelpers } from 'formik'
 import { useNavigation } from '@react-navigation/native'
 import * as yup from 'yup';
-import { findUserByEmailAndPassword } from '../db/users'
-import { connectToDatabase } from '../db/db'
-
-interface LoginFormValues {
-    email: string;
-    password: string;
-}
+import { useAuthActions } from '../hooks/useAuthActions'
 
 const loginValidationSchema = yup.object().shape({
     email: yup
@@ -23,28 +17,10 @@ const loginValidationSchema = yup.object().shape({
         .required('Password is required'),
 });
 
-const handleLogin = async (values: LoginFormValues, { resetForm }: FormikHelpers<LoginFormValues>) => {
-    console.log('Login Values:', values);
-    try {
-        const db = await connectToDatabase();
-        let result = await findUserByEmailAndPassword(db, values);
-        if (!result) {
-            console.error('User not found or invalid credentials');
-            return;
-        }
-        // We are here that means user is legit.
-
-        // console.log('User authenticated successfully:', result);
-        resetForm();
-
-        // Navigation Vala Kaam
-    } catch (error) {
-        console.error('Error authenticating user:', error);
-    }
-}
-
 const LoginScreen = () => {
     const navigation = useNavigation();
+    const { handleLogin } = useAuthActions();
+
     return (
         <View style={styles.container}>
             <Image source={logo} style={styles.logo} />
