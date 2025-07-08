@@ -1,12 +1,17 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import DashBoardScreen from '../screens/DashBoardScreen';
 import CreateAlarmScreen from '../screens/CreateAlarmScreen';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { AuthContext } from '../contexts/AuthContext';
+import ButtonPrimary from '../components/ButtonPrimary';
 
 const Tab = createBottomTabNavigator();
 
 const AppNavigator = () => {
+
+    const { logout } = useContext(AuthContext);
+
     return (
         <Tab.Navigator
             initialRouteName="Dashboard"
@@ -35,6 +40,13 @@ const AppNavigator = () => {
                     // Return the icon component
                     return <Ionicons name={iconName} size={size} color={color} />;
                 },
+                headerRight: () => {
+                    if (route.name === 'Dashboard') {
+                        return <ButtonPrimary title="Logout" onPress={logout} style={{ marginRight: 15 }} />;
+                    }
+                    return null;
+                }
+
             })}
         >
             <Tab.Screen

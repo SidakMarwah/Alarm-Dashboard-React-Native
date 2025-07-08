@@ -32,13 +32,15 @@ export const createTables = async (db: SQLiteDatabase) => {
       )
     `
     const alarmsQuery = `
-     CREATE TABLE IF NOT EXISTS Alarms (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        title TEXT,
-        time TEXT,
-        repeat TEXT,
-        isActive INTEGER DEFAULT 0
-     )
+        CREATE TABLE IF NOT EXISTS Alarms (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT,
+            time TEXT,
+            repeat INTEGER DEFAULT 0,
+            isActive INTEGER DEFAULT 0,
+            u_id INTEGER,
+            FOREIGN KEY(u_id) REFERENCES Users(id) ON DELETE CASCADE
+        )
     `
     try {
         await db.executeSql(usersQuery)

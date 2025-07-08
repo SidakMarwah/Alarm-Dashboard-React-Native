@@ -1,4 +1,4 @@
-import { SQLiteDatabase } from 'react-native-sqlite-storage';
+import { connectToDatabase } from './db';
 
 interface User {
     id?: number; // Optional for new users
@@ -7,7 +7,9 @@ interface User {
     password: string;
 }
 
-export const addUser = async (db: SQLiteDatabase, user: User) => {
+export const addUser = async (user: User) => {
+    const db = await connectToDatabase();
+
     const insertQuery = `
      INSERT INTO Users (name, email, password)
      VALUES (?, ?, ?)
@@ -25,7 +27,9 @@ export const addUser = async (db: SQLiteDatabase, user: User) => {
     }
 }
 
-export const findUserByEmailAndPassword = async (db: SQLiteDatabase, userData: User) => {
+export const findUserByEmailAndPassword = async (userData: User) => {
+    const db = await connectToDatabase();
+
     const query = `
      SELECT * FROM Users
      WHERE email = ? AND password = ?

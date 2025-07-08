@@ -1,5 +1,4 @@
 import { FormikHelpers } from "formik";
-import { connectToDatabase } from "../db/db";
 import { addUser, findUserByEmailAndPassword } from "../db/users";
 import { useContext } from "react";
 import { AuthContext } from "../contexts/AuthContext";
@@ -21,10 +20,9 @@ export function useAuthActions() {
     const handleSignUp = async (values: SignUpFormValues, { resetForm }: FormikHelpers<SignUpFormValues>) => {
         console.log('Sign Up Values:', values);
         try {
-            const db = await connectToDatabase();
-            let result = await addUser(db, values);
+            let result = await addUser(values);
             console.log('User added successfully:', result);
-            await login();
+            await login(values.email);
             resetForm();
         } catch (error) {
             console.error('Error adding user:', error);
@@ -34,8 +32,7 @@ export function useAuthActions() {
     const handleLogin = async (values: LoginFormValues, { resetForm }: FormikHelpers<LoginFormValues>) => {
         // console.log('Login Values:', values);
         try {
-            const db = await connectToDatabase();
-            let result = await findUserByEmailAndPassword(db, values);
+            let result = await findUserByEmailAndPassword(values);
             if (!result) {
                 console.error('User not found or invalid credentials');
                 return;
@@ -43,7 +40,7 @@ export function useAuthActions() {
             // We are here that means user is legit.
 
             // console.log('User authenticated successfully:', result);
-            await login();
+            await login(values.email);
             resetForm();
         } catch (error) {
             console.error('Error authenticating user:', error);
