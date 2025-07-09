@@ -9,3 +9,13 @@ export const getFormattedTime = (date: Date) => {
 
     return `${hours}:${minutesStr} ${ampm}`;
 };
+
+export function parseTimeString(timeStr: string): [number, number] {
+    const [time, modifier] = timeStr.split(' ');
+    let [hours, minutes] = time.split(':').map(Number);
+
+    if (modifier === 'PM' && hours < 12) hours += 12;
+    if (modifier === 'AM' && hours === 12) hours = 0;
+
+    return [hours, minutes];
+}

@@ -3,12 +3,28 @@
 import React from 'react';
 import { StyleSheet, Text, View, Switch, Button } from 'react-native';
 import { Alarm } from '../db/alarms'; // Assuming you export the Alarm type
+import { cancelAlarmNotification, scheduleAlarmNotification } from '../utils/notifications';
 
 interface AlarmCardProps {
     alarm: Alarm;
     onDelete: (id: number) => void;
     onToggleActive: (id: number, isActive: boolean) => void;
 }
+
+const handleDelete = async (id: number, onDelete: (id: number) => void) => {
+    // This function can be used to handle the delete action
+    await cancelAlarmNotification(id);
+    await onDelete(id);
+}
+
+const handleToggleActive = async (alarm: Alarm, onToggleActive: (id: number, isActive: boolean) => void) => {
+    await onToggleActive(alarm.id!, !alarm.isActive);
+    if (alarm.isActive) {
+        await scheduleAlarmNotification(alarm, alarm.id!);
+    } else {
+        await cancelAlarmNotification(alarm.id!);
+    }
+};
 
 const AlarmCard: React.FC<AlarmCardProps> = ({ alarm, onDelete, onToggleActive }) => {
     return (
@@ -21,11 +37,11 @@ const AlarmCard: React.FC<AlarmCardProps> = ({ alarm, onDelete, onToggleActive }
                 <Text style={styles.activeLabel}>Active</Text>
                 <Switch
                     value={alarm.isActive}
-                    onValueChange={() => onToggleActive(alarm.id!, !alarm.isActive)}
+                    onValueChange={() => handleToggleActive(alarm, onToggleActive)}
                 />
             </View>
 
-            <Button title="Delete" color="#d33" onPress={() => onDelete(alarm.id!)} />
+            <Button title="Delete" color="#d33" onPress={() => handleDelete(alarm.id!, onDelete)} />
         </View>
     );
 };

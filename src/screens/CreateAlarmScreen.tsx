@@ -1,35 +1,36 @@
-import { Alert, Button, StyleSheet, Switch, Text, TextInput, View } from 'react-native'
+import { Alert, StyleSheet, Switch, Text, TextInput, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import DatePicker from 'react-native-date-picker'
 import ButtonPrimary from '../components/ButtonPrimary'
 import { getFormattedTime } from '../utils/dateUtils'
 import { addAlarm } from '../db/alarms'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { scheduleAlarmNotification } from '../utils/notifications'
 
 const CreateAlarmScreen = ({ navigation }) => {
     const [time, setTime] = useState(new Date());
     const [open, setOpen] = useState(false);
     const [title, setTitle] = useState('');
     const [repeat, setRepeat] = useState(false);
-    const [email, setEmail] = useState<string>('');
+    const [userId, setUserId] = useState<string>('');
 
-    // Load email on mount
+    // Load user ID on mount
     useEffect(() => {
-        const loadEmail = async () => {
+        const loadUserId = async () => {
             try {
-                const storedEmail = await AsyncStorage.getItem('userEmail');
-                if (storedEmail) {
-                    console.log("Loaded user email:", storedEmail);
-                    setEmail(storedEmail);
+                const storedUserId = await AsyncStorage.getItem('userId');
+                if (storedUserId) {
+                    console.log("Loaded user ID:", storedUserId);
+                    setUserId(storedUserId);
                 } else {
-                    console.warn("No user email found in AsyncStorage");
+                    console.warn("No user ID found in AsyncStorage");
                 }
             } catch (error) {
-                console.error("Failed to load user email:", error);
+                console.error("Failed to load user ID:", error);
             }
         };
 
-        loadEmail();
+        loadUserId();
     }, []);
 
     const handleCreateAlarm = async () => {
@@ -46,16 +47,19 @@ const CreateAlarmScreen = ({ navigation }) => {
         //     isActive: 1,
         // });
 
+        const alarmData = {
+            title,
+            time: getFormattedTime(time),
+            repeat,
+            isActive: true
+        };
+
         try {
-            await addAlarm({
-                alarm: {
-                    title,
-                    time: getFormattedTime(time),
-                    repeat,
-                    isActive: true
-                },
-                email
+            const insertId = await addAlarm({
+                alarm: alarmData,
+                userId
             })
+            await scheduleAlarmNotification(alarmData, insertId);
             Alert.alert('Success', 'Alarm created!');
         } catch (error) {
             console.error('Error creating alarm:', error);
@@ -105,7 +109,11 @@ const CreateAlarmScreen = ({ navigation }) => {
                 <Text style={styles.label}>Repeat:</Text>
                 <Switch value={repeat} onValueChange={setRepeat} />
             </View>
-            <Button title="Create Alarm" onPress={handleCreateAlarm} />
+            <ButtonPrimary
+                title="Create Alarm"
+                style={{ backgroundColor: '#1976d2' }}
+                onPress={handleCreateAlarm}
+            />
         </View>
     )
 }

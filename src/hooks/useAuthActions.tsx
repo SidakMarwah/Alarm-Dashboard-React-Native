@@ -20,9 +20,9 @@ export function useAuthActions() {
     const handleSignUp = async (values: SignUpFormValues, { resetForm }: FormikHelpers<SignUpFormValues>) => {
         console.log('Sign Up Values:', values);
         try {
-            let result = await addUser(values);
-            console.log('User added successfully:', result);
-            await login(values.email);
+            let userId = await addUser(values);
+            console.log('User added successfully:', userId);
+            await login(userId, values.email);
             resetForm();
         } catch (error) {
             console.error('Error adding user:', error);
@@ -40,7 +40,7 @@ export function useAuthActions() {
             // We are here that means user is legit.
 
             // console.log('User authenticated successfully:', result);
-            await login(values.email);
+            await login(result.id, values.email);
             resetForm();
         } catch (error) {
             console.error('Error authenticating user:', error);

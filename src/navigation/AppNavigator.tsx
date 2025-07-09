@@ -42,7 +42,11 @@ const AppNavigator = () => {
                 },
                 headerRight: () => {
                     if (route.name === 'Dashboard') {
-                        return <ButtonPrimary title="Logout" onPress={logout} style={{ marginRight: 15 }} />;
+                        return <ButtonPrimary
+                            title="Logout"
+                            onPress={logout}
+                            style={{ marginRight: 15, backgroundColor: '#d32f2f' }}
+                        />;
                     }
                     return null;
                 }
